@@ -51,6 +51,10 @@ urlpatterns = [
         path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
         path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
         path('token/logout/', TokenBlacklistView.as_view(), name='token_blacklist'),
+
+        path('password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
+
+        
     ])),
 
     # Docs

@@ -58,7 +58,7 @@ INSTALLED_APPS = [
 
 ]
 
-INSTALLED_APPS += ['corsheaders', 'rest_framework_simplejwt', 'rest_framework_simplejwt.token_blacklist',
+INSTALLED_APPS += ['corsheaders', 'rest_framework_simplejwt', 'rest_framework_simplejwt.token_blacklist', 'django_rest_passwordreset'
 ]
 
 REST_FRAMEWORK = {

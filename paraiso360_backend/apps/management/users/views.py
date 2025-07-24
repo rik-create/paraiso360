@@ -23,7 +23,7 @@ class HelloAdminView(APIView):
         return Response({"message": f"Hello Admin: {request.user.username}"})
     
 
-from rest_framework import generics
+from rest_framework import generics, permissions
 from .serializers import AppUserSerializer
 from .models import AppUser
 
@@ -39,3 +39,13 @@ from .serializers import AppUserSerializer
 class AppUserDetailView(RetrieveAPIView):
     queryset = AppUser.objects.all()
     serializer_class = AppUserSerializer
+
+
+
+class CurrentUserRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = AppUserSerializer
+
+    def get_object(self):
+        # Return the current logged-in user
+        return self.request.user

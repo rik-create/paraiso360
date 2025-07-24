@@ -1,3 +1,4 @@
+# paraiso360_backend/paraiso360_backend/urls.py
 """
 URL configuration for paraiso360_backend project.
 
@@ -23,6 +24,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
     TokenVerifyView,
+    TokenBlacklistView
 )
 # Swagger schema view config
 schema_view = get_schema_view(
@@ -48,6 +50,11 @@ urlpatterns = [
         path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
         path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
         path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+        path('token/logout/', TokenBlacklistView.as_view(), name='token_blacklist'),
+
+        path('password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
+
+        
     ])),
 
     # Docs

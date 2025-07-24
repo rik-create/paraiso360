@@ -1,3 +1,5 @@
+#paraiso360_backend/paraiso360_backend/settings.py
+
 """
 Django settings for paraiso360_backend project.
 
@@ -53,9 +55,10 @@ INSTALLED_APPS = [
 
 
 
+
 ]
 
-INSTALLED_APPS += ['corsheaders', 'rest_framework_simplejwt',
+INSTALLED_APPS += ['corsheaders', 'rest_framework_simplejwt', 'rest_framework_simplejwt.token_blacklist',
 ]
 
 REST_FRAMEWORK = {
@@ -70,7 +73,7 @@ REST_FRAMEWORK = {
 
 from datetime import timedelta
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'RO​TATE_REFRESH_TOKENS': False,  # optional: issue new refresh on use
     'BLACKLIST_AFTER_ROTATION': True,

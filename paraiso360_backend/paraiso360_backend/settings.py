@@ -88,6 +88,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'apps.management.users.middleware.JWTSessionValidationMiddleware',
 ]
 
 MIDDLEWARE.insert(1, 'corsheaders.middleware.CorsMiddleware')

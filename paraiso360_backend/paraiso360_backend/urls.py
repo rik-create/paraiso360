@@ -19,7 +19,11 @@ from django.urls import include, path, re_path
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+    TokenVerifyView,
+)
 # Swagger schema view config
 schema_view = get_schema_view(
     openapi.Info(
@@ -32,10 +36,22 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-    path('api/<str:version>/', include('apps.inventory.burials.urls')),
     path('admin/', admin.site.urls),
 
-    # Swagger and Redoc routes
+    # Versioned API routes
+    path('api/<str:version>/', include([
+        path('burials/', include('apps.inventory.burials.urls')),
+        path('users/', include('apps.management.users.urls')),
+
+
+        # JWT routes under versioned API
+        path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+        path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+        path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    ])),
+
+    # Docs
     re_path(r'^docs/$', schema_view.with_ui('swagger', cache_timeout=0), name='swagger-docs'),
     re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='redoc-docs'),
 ]
+

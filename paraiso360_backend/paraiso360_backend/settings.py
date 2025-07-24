@@ -28,6 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+AUTH_USER_MODEL = 'users.AppUser'
 
 # Application definition
 
@@ -54,13 +55,25 @@ INSTALLED_APPS = [
 
 ]
 
-INSTALLED_APPS += ['corsheaders']
+INSTALLED_APPS += ['corsheaders', 'rest_framework_simplejwt',
+]
 
 REST_FRAMEWORK = {
   'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
   'DEFAULT_VERSION': 'v1',
   'ALLOWED_VERSIONS': ['v1', 'v2'],
   'VERSION_PARAM': 'version',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+    'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+from datetime import timedelta
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'RO​TATE_REFRESH_TOKENS': False,  # optional: issue new refresh on use
+    'BLACKLIST_AFTER_ROTATION': True,
 }
 
 
@@ -107,7 +120,7 @@ WSGI_APPLICATION = 'paraiso360_backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'paraiso360-dev',
+        'NAME': 'paraiso360-db',
         'USER': 'postgres',
         'PASSWORD': '123',
         'HOST': 'localhost',
@@ -118,12 +131,15 @@ DATABASES = {
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
+from .validators import CustomPasswordValidator
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {'min_length': 8},
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -131,7 +147,12 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+    {
+        'NAME': 'paraiso360_backend.validators.CustomPasswordValidator',
+    },
 ]
+
+
 
 
 # Internationalization
@@ -158,3 +179,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 GDAL_LIBRARY_PATH = r"C:\OSGeo4W\bin\gdal311.dll"
 GEOS_LIBRARY_PATH = r"C:\OSGeo4W\bin\geos_c.dll"
+

@@ -1,11 +1,13 @@
-# lots/api/serializers.py
+# paraiso360_backend/apps/inventory/lots/serializers.py
 from rest_framework_gis import serializers as gis_serializers
 from rest_framework import serializers
-from clients.serializers import ClientSerializer
-from lottypes.serializers import LotTypeSerializer
+from ..clients.serializers import ClientSerializer
+from ..lottypes.serializers import LotTypeSerializer
 from .models import Lot
-from clients.models import Client
-from lottypes.models import LotType
+from ..clients.models import Client
+from ..lottypes.models import LotType
+from django.contrib.gis.geos import Point
+
 
 class LotSerializer(gis_serializers.GeoFeatureModelSerializer):
     """
@@ -43,3 +45,20 @@ class LotSerializer(gis_serializers.GeoFeatureModelSerializer):
             'client_id',   # For write operations
         ]
         read_only_fields = ['id']
+
+# Custom create and update methods to handle PointField serialization
+    def create(self, validated_data):
+        location_data = validated_data.get('location')
+        if isinstance(location_data, dict):
+            coords = location_data.get('coordinates', [])
+            if len(coords) == 2:
+                validated_data['location'] = Point(coords[0], coords[1])
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        location_data = validated_data.get('location')
+        if isinstance(location_data, dict):
+            coords = location_data.get('coordinates', [])
+            if len(coords) == 2:
+                validated_data['location'] = Point(coords[0], coords[1])
+        return super().update(instance, validated_data)

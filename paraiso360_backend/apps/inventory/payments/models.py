@@ -45,7 +45,9 @@ class Payment(models.Model):
     )
 
     due_date = models.DateField(
-    help_text="The date when the payment is due."
+    help_text="The date when the payment is due.",
+    blank=True,
+    null=True
     )
 
     class PaymentMethod(models.TextChoices):

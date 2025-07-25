@@ -44,6 +44,7 @@ urlpatterns = [
     path('api/<str:version>/', include([
         path('burials/', include('apps.inventory.burials.urls')),
         path('users/', include('apps.management.users.urls')),
+        path('lots/', include('apps.inventory.lots.urls')),
 
 
         # JWT routes under versioned API

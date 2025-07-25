@@ -44,6 +44,27 @@ class Payment(models.Model):
         help_text="The lot this payment is for."
     )
 
+    due_date = models.DateField(
+    help_text="The date when the payment is due."
+    )
+
+    class PaymentMethod(models.TextChoices):
+        CASH = 'Cash', 'Cash'
+        GCASH = 'GCash', 'GCash'
+        CARD = 'Card', 'Card'
+
+    payment_method = models.CharField(
+        max_length=20,
+        choices=PaymentMethod.choices,
+        default=PaymentMethod.CASH,
+        help_text="The method used to make the payment."
+    )
+
+    def is_overdue(self):
+        from datetime import date
+        return self.status != self.Status.PAID and self.due_date < date.today()
+
+
     class Meta:
         db_table = 'payment'
         verbose_name = "Payment"

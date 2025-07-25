@@ -50,13 +50,19 @@ class LotListSerializer(serializers.ListSerializer):
             if not lot:
                 continue
 
-            location_data = data.get('location')
+            serializer = self.child.__class__(
+                lot, data=data, partial=True, context=self.context)
+            serializer.is_valid(raise_exception=True)
+
+            validated = serializer.validated_data
+
+            location_data = validated.get('location')
             if isinstance(location_data, dict):
                 coords = location_data.get('coordinates', [])
                 if len(coords) == 2:
-                    data['location'] = Point(coords[0], coords[1])
+                    validated['location'] = Point(coords[0], coords[1])
 
-            for attr, value in data.items():
+            for attr, value in validated.items():
                 setattr(lot, attr, value)
             updated_lots.append(lot)
 
@@ -107,7 +113,6 @@ class LotSerializer(gis_serializers.GeoFeatureModelSerializer):
 
 # Custom create and update methods to handle PointField serialization
 
-
     def create(self, validated_data):
         location_data = validated_data.get('location')
         if isinstance(location_data, dict):
@@ -123,3 +128,16 @@ class LotSerializer(gis_serializers.GeoFeatureModelSerializer):
             if len(coords) == 2:
                 validated_data['location'] = Point(coords[0], coords[1])
         return super().update(instance, validated_data)
+
+    def validate(self, attrs):
+        # Check if status is being updated
+        new_status = attrs.get('status')
+        instance = getattr(self, 'instance', None)
+
+        if instance and new_status:
+            # Prevent redundant "sold" marking
+            if instance.status == 'Sold' and new_status == 'Sold':
+                raise serializers.ValidationError({
+                    'status': 'Lot is already sold and cannot be marked sold again.'
+                })
+        return super().validate(attrs)

@@ -1,4 +1,6 @@
 from django.contrib import admin
-from .models import Client  # change to actual model names
+from .models import Client
 
-admin.site.register(Client)
+@admin.register(Client)
+class ClientAdmin(admin.ModelAdmin):
+    search_fields = ['full_name', 'contact_number', 'lots__lot_number']

@@ -9,6 +9,63 @@ from ..lottypes.models import LotType
 from django.contrib.gis.geos import Point
 
 
+class LotListSerializer(serializers.ListSerializer):
+
+    def to_internal_value(self, data):
+        if not isinstance(data, list):
+            raise serializers.ValidationError('Expected a list of items.')
+
+        ret = []
+        errors = []
+
+        id_instance_map = {
+            str(obj.id): obj for obj in self.instance} if self.instance else {}
+
+        for item in data:
+            try:
+                instance = id_instance_map.get(str(item.get('id')))
+                serializer = self.child
+                serializer.instance = instance
+                validated = serializer.to_internal_value(item)
+                if instance and hasattr(instance, "id"):
+                    validated['id'] = instance.id
+                ret.append(validated)
+                errors.append({})
+            except serializers.ValidationError as exc:
+                errors.append(exc.detail)
+            except Exception:
+                errors.append({'non_field_errors': ['Invalid input.']})
+
+        if any(errors):
+            raise serializers.ValidationError(errors)
+
+        return ret
+
+    def update(self, instances, validated_data):
+        lot_mapping = {lot.id: lot for lot in instances}
+        updated_lots = []
+
+        for data in validated_data:
+            lot = lot_mapping.get(data.get('id'))
+            if not lot:
+                continue
+
+            location_data = data.get('location')
+            if isinstance(location_data, dict):
+                coords = location_data.get('coordinates', [])
+                if len(coords) == 2:
+                    data['location'] = Point(coords[0], coords[1])
+
+            for attr, value in data.items():
+                setattr(lot, attr, value)
+            updated_lots.append(lot)
+
+        Lot.objects.bulk_update(updated_lots, fields=[
+            field for field in validated_data[0].keys() if field != 'id'
+        ])
+        return updated_lots
+
+
 class LotSerializer(gis_serializers.GeoFeatureModelSerializer):
     """
     Serializer for the Lot model using GeoJSON for the location field.
@@ -41,12 +98,16 @@ class LotSerializer(gis_serializers.GeoFeatureModelSerializer):
             'location',
             'lot_type',
             'client',
-            'lot_type_id', # For write operations
+            'lot_type_id',  # For write operations
             'client_id',   # For write operations
         ]
         read_only_fields = ['id']
+        list_serializer_class = LotListSerializer
+
 
 # Custom create and update methods to handle PointField serialization
+
+
     def create(self, validated_data):
         location_data = validated_data.get('location')
         if isinstance(location_data, dict):

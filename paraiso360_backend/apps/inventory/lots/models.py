@@ -2,6 +2,8 @@
 
 # To use GIS fields like PointField, you must import from django.contrib.gis
 from django.contrib.gis.db import models
+from django.core.exceptions import ValidationError
+
 
 class Lot(models.Model):
     """
@@ -54,6 +56,16 @@ class Lot(models.Model):
         help_text="The client who owns this lot. Can be empty if available."
     )
 
+    fresh_body_count = models.PositiveIntegerField(default=0)
+    skeletal_remains_count = models.PositiveIntegerField(default=0)
+
+    def clean(self):
+        if self.fresh_body_count > self.lot_type.max_fresh_body_capacity:
+            raise ValidationError("Fresh body count exceeds capacity for this lot type.")
+        if self.skeletal_remains_count > self.lot_type.max_skeletal_remains_capacity:
+            raise ValidationError("Skeletal remains count exceeds capacity for this lot type.")
+
+    
     class Meta:
         db_table = 'lot'
         verbose_name = "Lot"

@@ -106,12 +106,16 @@ class LotSerializer(gis_serializers.GeoFeatureModelSerializer):
             'client',
             'lot_type_id',  # For write operations
             'client_id',   # For write operations
+            'fresh_body_count',
+            'skeletal_remains_count',
+
         ]
         read_only_fields = ['id']
         list_serializer_class = LotListSerializer
 
 
 # Custom create and update methods to handle PointField serialization
+
 
     def create(self, validated_data):
         location_data = validated_data.get('location')
@@ -130,14 +134,31 @@ class LotSerializer(gis_serializers.GeoFeatureModelSerializer):
         return super().update(instance, validated_data)
 
     def validate(self, attrs):
-        # Check if status is being updated
-        new_status = attrs.get('status')
         instance = getattr(self, 'instance', None)
 
+        # Status change rule
+        new_status = attrs.get('status')
         if instance and new_status:
-            # Prevent redundant "sold" marking
             if instance.status == 'Sold' and new_status == 'Sold':
                 raise serializers.ValidationError({
                     'status': 'Lot is already sold and cannot be marked sold again.'
                 })
+
+        # Occupancy capacity validation
+        lot_type = instance.lot_type if instance else attrs.get('lot_type')
+        fresh_body_count = attrs.get(
+            'fresh_body_count', instance.fresh_body_count if instance else 0)
+        skeletal_remains_count = attrs.get(
+            'skeletal_remains_count', instance.skeletal_remains_count if instance else 0)
+
+        if lot_type:
+            if fresh_body_count > lot_type.max_fresh_body_capacity:
+                raise serializers.ValidationError({
+                    'fresh_body_count': f'Exceeds capacity ({lot_type.max_fresh_body_capacity})'
+                })
+            if skeletal_remains_count > lot_type.max_skeletal_remains_capacity:
+                raise serializers.ValidationError({
+                    'skeletal_remains_count': f'Exceeds capacity ({lot_type.max_skeletal_remains_capacity})'
+                })
+
         return super().validate(attrs)

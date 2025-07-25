@@ -62,13 +62,17 @@ INSTALLED_APPS += ['corsheaders', 'rest_framework_simplejwt', 'rest_framework_si
 ]
 
 REST_FRAMEWORK = {
-  'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
-  'DEFAULT_VERSION': 'v1',
-  'ALLOWED_VERSIONS': ['v1', 'v2'],
-  'VERSION_PARAM': 'version',
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-    'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
+    'DEFAULT_VERSION': 'v1',
+    'ALLOWED_VERSIONS': ['v1', 'v2'],
+    'VERSION_PARAM': 'version',
+        'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        ),
+        'DEFAULT_FILTER_BACKENDS': [
+                'django_filters.rest_framework.DjangoFilterBackend',
+                'rest_framework.filters.SearchFilter',
+        ]
 }
 
 from datetime import timedelta

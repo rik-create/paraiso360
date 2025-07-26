@@ -26,9 +26,10 @@ class Lot(models.Model):
         help_text="The current availability status of the lot."
     )
 
-
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    latitude = models.DecimalField(
+        max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(
+        max_digits=9, decimal_places=6, null=True, blank=True)
 
     # --- NEW GIS FIELD ---
     # This PointField replaces the old latitude and longitude fields.
@@ -61,11 +62,12 @@ class Lot(models.Model):
 
     def clean(self):
         if self.fresh_body_count > self.lot_type.max_fresh_body_capacity:
-            raise ValidationError("Fresh body count exceeds capacity for this lot type.")
+            raise ValidationError(
+                "Fresh body count exceeds capacity for this lot type.")
         if self.skeletal_remains_count > self.lot_type.max_skeletal_remains_capacity:
-            raise ValidationError("Skeletal remains count exceeds capacity for this lot type.")
+            raise ValidationError(
+                "Skeletal remains count exceeds capacity for this lot type.")
 
-    
     class Meta:
         db_table = 'lot'
         verbose_name = "Lot"

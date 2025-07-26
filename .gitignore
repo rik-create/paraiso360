@@ -46,3 +46,15 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+
+# Additional Python compiled files
+*.pyc
+**/*.pyc
+
+# Comprehensive .pyc exclusion
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/migrations/*.pyc
+**/migrations/__pycache__/

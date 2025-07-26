@@ -1,8 +1,8 @@
-from rest_framework.generics import ListAPIView
+from rest_framework import viewsets
 from .models import Client
 from .serializers import ClientSerializer
 
-class ClientListView(ListAPIView):
+
+class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
-

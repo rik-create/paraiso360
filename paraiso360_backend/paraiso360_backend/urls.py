@@ -45,6 +45,7 @@ urlpatterns = [
         path('burials/', include('apps.inventory.burials.urls')),
         path('users/', include('apps.management.users.urls')),
         path('lots/', include('apps.inventory.lots.urls')),
+        path('clients/', include('apps.inventory.clients.urls')),
 
 
         # JWT routes under versioned API
@@ -53,13 +54,15 @@ urlpatterns = [
         path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
         path('token/logout/', TokenBlacklistView.as_view(), name='token_blacklist'),
 
-        path('password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
+        path('password_reset/', include('django_rest_passwordreset.urls',
+             namespace='password_reset')),
 
-        
+
     ])),
 
     # Docs
-    re_path(r'^docs/$', schema_view.with_ui('swagger', cache_timeout=0), name='swagger-docs'),
-    re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='redoc-docs'),
+    re_path(r'^docs/$', schema_view.with_ui('swagger',
+            cache_timeout=0), name='swagger-docs'),
+    re_path(r'^redoc/$', schema_view.with_ui('redoc',
+            cache_timeout=0), name='redoc-docs'),
 ]
-

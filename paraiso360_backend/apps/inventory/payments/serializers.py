@@ -1,15 +1,17 @@
 # payments/api/serializers.py
 from rest_framework import serializers
 from .models import Payment
-from clients.models import Client
-from lots.models import Lot
+from ..clients.models import Client
+from ..lots.models import Lot
+
 
 class PaymentSerializer(serializers.ModelSerializer):
     """
     Serializer for the Payment model.
     """
     # Human-readable representations for read operations
-    client_name = serializers.CharField(source='client.full_name', read_only=True)
+    client_name = serializers.CharField(
+        source='client.full_name', read_only=True)
     lot_str = serializers.StringRelatedField(source='lot', read_only=True)
 
     # Writeable fields for relationships by ID

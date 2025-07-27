@@ -1,5 +1,4 @@
-# lots/models.py
-
+# paraiso360_backend/apps/inventory/lots/models.py
 # To use GIS fields like PointField, you must import from django.contrib.gis
 from django.contrib.gis.db import models
 from django.core.exceptions import ValidationError
@@ -76,3 +75,12 @@ class Lot(models.Model):
 
     def __str__(self):
         return f"Block {self.block}, Section {self.section}, Lot {self.lot_number}"
+
+
+class LotOccupancyHistory(models.Model):
+    lot = models.ForeignKey(Lot, on_delete=models.CASCADE)
+    burial = models.ForeignKey(
+        'burials.Burial', on_delete=models.SET_NULL, null=True)
+    remains_type = models.CharField(max_length=20)
+    change = models.IntegerField()  # +1 for add, -1 for remove
+    timestamp = models.DateTimeField(auto_now_add=True)

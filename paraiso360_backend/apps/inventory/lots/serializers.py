@@ -91,6 +91,10 @@ class LotSerializer(gis_serializers.GeoFeatureModelSerializer):
         queryset=LotType.objects.all(), source='lot_type', write_only=True
     )
 
+    # Read-only fields for capacity status
+    is_full = serializers.SerializerMethodField()
+    near_capacity = serializers.SerializerMethodField()
+
     class Meta:
         model = Lot
         # The 'location' field is the geometry field for GeoJSON output
@@ -108,14 +112,37 @@ class LotSerializer(gis_serializers.GeoFeatureModelSerializer):
             'client_id',   # For write operations
             'fresh_body_count',
             'skeletal_remains_count',
-
+            'is_full',
+            'near_capacity',
         ]
-        read_only_fields = ['id']
+        read_only_fields = ['id', 'is_full', 'near_capacity']
         list_serializer_class = LotListSerializer
 
+    def get_is_full(self, instance):
+        """
+        A lot is full only when both fresh body and skeletal remains have reached capacity.
+        """
+        if not instance.lot_type:
+            return False
 
-# Custom create and update methods to handle PointField serialization
+        fresh_full = instance.fresh_body_count >= instance.lot_type.max_fresh_body_capacity
+        skeletal_full = instance.skeletal_remains_count >= instance.lot_type.max_skeletal_remains_capacity
 
+        return fresh_full and skeletal_full
+
+    def get_near_capacity(self, instance):
+        """
+        A lot is near capacity when either fresh body or skeletal remains is at 80% capacity.
+        """
+        if not instance.lot_type:
+            return False
+
+        fresh_near = instance.fresh_body_count >= (
+            instance.lot_type.max_fresh_body_capacity * 0.8)
+        skeletal_near = instance.skeletal_remains_count >= (
+            instance.lot_type.max_skeletal_remains_capacity * 0.8)
+
+        return fresh_near or skeletal_near
 
     def create(self, validated_data):
         location_data = validated_data.get('location')
@@ -136,8 +163,15 @@ class LotSerializer(gis_serializers.GeoFeatureModelSerializer):
     def validate(self, attrs):
         instance = getattr(self, 'instance', None)
 
-        # Status change rule
+        # Validate status is one of the allowed values
+        allowed_statuses = ['Available', 'Reserve', 'Sold']
         new_status = attrs.get('status')
+        if new_status and new_status not in allowed_statuses:
+            raise serializers.ValidationError({
+                'status': f'Status must be one of: {", ".join(allowed_statuses)}'
+            })
+
+        # Status change rule
         if instance and new_status:
             if instance.status == 'Sold' and new_status == 'Sold':
                 raise serializers.ValidationError({
@@ -152,6 +186,7 @@ class LotSerializer(gis_serializers.GeoFeatureModelSerializer):
             'skeletal_remains_count', instance.skeletal_remains_count if instance else 0)
 
         if lot_type:
+            # Hard validation - prevent exceeding capacity
             if fresh_body_count > lot_type.max_fresh_body_capacity:
                 raise serializers.ValidationError({
                     'fresh_body_count': f'Exceeds capacity ({lot_type.max_fresh_body_capacity})'

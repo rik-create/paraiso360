@@ -1,6 +1,11 @@
-from django.urls import path
-from .views import BurialListView
+# paraiso360_backend/apps/inventory/lots/urls.py
+from rest_framework.routers import DefaultRouter
+from django.urls import include, path
+from .views import BurialViewSet
+
+router = DefaultRouter()
+router.register(r'', BurialViewSet, basename='burial')
 
 urlpatterns = [
-    path('', BurialListView.as_view(), name='burials'),
+    path('', include(router.urls)),
 ]

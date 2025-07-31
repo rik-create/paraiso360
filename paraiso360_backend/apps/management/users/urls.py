@@ -6,12 +6,13 @@ from .views import AppUserCreateView, AppUserDetailView, CurrentUserRetrieveUpda
 
 urlpatterns = [
     path('hello/', HelloEveryoneView.as_view()),
-    path('hello/staff/', HelloStaffView.as_view()),
-    path('hello/admin/', HelloAdminView.as_view()),
+    path('staff/', HelloStaffView.as_view()),
+    path('admin/', HelloAdminView.as_view()),
 
     # 👇 This line adds the endpoint for creating users
     path('create-user/', AppUserCreateView.as_view(), name='user-create'),
-    path('<int:pk>/', AppUserDetailView.as_view()),  # 👈 this line handles GET /users/<id>/
+    # 👈 this line handles GET /users/<id>/
+    path('<int:pk>/', AppUserDetailView.as_view()),
 
     # 👇 This line adds the endpoint for retrieving/updating the current user
     path('me/', CurrentUserRetrieveUpdateView.as_view(), name='user-me'),

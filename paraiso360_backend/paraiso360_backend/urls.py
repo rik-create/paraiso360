@@ -26,6 +26,9 @@ from rest_framework_simplejwt.views import (
     TokenVerifyView,
     TokenBlacklistView
 )
+from apps.management.users.views import csrf_token_view, test_post, test_get, CustomTokenObtainPairView
+
+
 # Swagger schema view config
 schema_view = get_schema_view(
     openapi.Info(
@@ -50,13 +53,22 @@ urlpatterns = [
 
 
         # JWT routes under versioned API
-        path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+        path('token/', CustomTokenObtainPairView.as_view(),
+             name='token_obtain_pair'),
         path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
         path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
         path('token/logout/', TokenBlacklistView.as_view(), name='token_blacklist'),
 
         path('password_reset/', include('django_rest_passwordreset.urls',
              namespace='password_reset')),
+
+
+        # CSRF token view
+        path('csrf/', csrf_token_view, name='csrf_token'),
+        # Test POST endpoint
+        path('test-post/', test_post, name='test_post'),
+        # Test GET endpoint
+        path('test-get/', test_get, name='test_get'),
 
 
     ])),

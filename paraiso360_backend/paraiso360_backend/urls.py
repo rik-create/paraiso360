@@ -46,6 +46,7 @@ urlpatterns = [
         path('users/', include('apps.management.users.urls')),
         path('lots/', include('apps.inventory.lots.urls')),
         path('clients/', include('apps.inventory.clients.urls')),
+        path('blocks/', include('apps.inventory.blocks.urls')),
 
 
         # JWT routes under versioned API

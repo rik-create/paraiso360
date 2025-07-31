@@ -1,3 +1,4 @@
+# paraiso360_backend/apps/inventory/lots/admin.py
 from django.contrib import admin
 from .models import Lot
 from ..burials.admin import BurialInline

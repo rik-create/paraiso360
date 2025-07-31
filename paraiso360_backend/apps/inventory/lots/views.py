@@ -34,3 +34,12 @@ class LotViewSet(viewsets.ModelViewSet):
         with transaction.atomic():
             serializer.save()
         return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], url_path='geojson/(?P<block_id>[^/.]+)')
+    def geojson_by_block(self, request, block_id=None, version=None):
+        lots = Lot.objects.filter(block__block_id=block_id)
+        serializer = self.get_serializer(lots, many=True)
+        return Response({
+            "type": "FeatureCollection",
+            "features": serializer.data
+        })

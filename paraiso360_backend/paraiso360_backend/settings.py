@@ -1,4 +1,4 @@
-#paraiso360_backend/paraiso360_backend/settings.py
+# paraiso360_backend/paraiso360_backend/settings.py
 
 """
 Django settings for paraiso360_backend project.
@@ -12,6 +12,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+from .validators import CustomPasswordValidator
+from datetime import timedelta
 from pathlib import Path
 import os
 
@@ -43,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.gis',
     'rest_framework',
+    'rest_framework_gis',
     'apps.inventory.lottypes',
     'apps.inventory.lots',
     'apps.inventory.clients',
@@ -52,6 +55,7 @@ INSTALLED_APPS = [
     'apps.management.notifications',
     'apps.management.roles',
     'apps.management.users',
+    'apps.inventory.blocks',
 
 
 
@@ -59,23 +63,22 @@ INSTALLED_APPS = [
 ]
 
 INSTALLED_APPS += ['corsheaders', 'rest_framework_simplejwt', 'rest_framework_simplejwt.token_blacklist', 'django_rest_passwordreset'
-]
+                   ]
 
 REST_FRAMEWORK = {
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
     'DEFAULT_VERSION': 'v1',
     'ALLOWED_VERSIONS': ['v1', 'v2'],
     'VERSION_PARAM': 'version',
-        'DEFAULT_AUTHENTICATION_CLASSES': (
+    'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        ),
-        'DEFAULT_FILTER_BACKENDS': [
-                'django_filters.rest_framework.DjangoFilterBackend',
-                'rest_framework.filters.SearchFilter',
-        ]
+    ),
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+    ]
 }
 
-from datetime import timedelta
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
@@ -139,7 +142,6 @@ DATABASES = {
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
-from .validators import CustomPasswordValidator
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -159,8 +161,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'paraiso360_backend.validators.CustomPasswordValidator',
     },
 ]
-
-
 
 
 # Internationalization
@@ -187,4 +187,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 GDAL_LIBRARY_PATH = r"C:\OSGeo4W\bin\gdal311.dll"
 GEOS_LIBRARY_PATH = r"C:\OSGeo4W\bin\geos_c.dll"
-

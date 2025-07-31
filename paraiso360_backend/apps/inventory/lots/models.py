@@ -3,6 +3,8 @@
 from django.contrib.gis.db import models
 from django.core.exceptions import ValidationError
 
+from ..blocks.models import Block
+
 
 class Lot(models.Model):
     """
@@ -15,7 +17,8 @@ class Lot(models.Model):
         SOLD = 'Sold', 'Sold'
 
     lot_number = models.CharField(max_length=20)
-    block = models.CharField(max_length=20)
+    block = models.ForeignKey(Block,
+                              on_delete=models.SET_NULL, null=True, blank=True)
     section = models.CharField(max_length=20)
 
     status = models.CharField(
@@ -33,11 +36,11 @@ class Lot(models.Model):
     # --- NEW GIS FIELD ---
     # This PointField replaces the old latitude and longitude fields.
     # It directly maps to a PostGIS geometry(Point, 4326) column.
-    location = models.PointField(
+    location = models.PolygonField(
         srid=4326,
         null=True,
         blank=True,
-        help_text="The geographic location (Point) of the lot."
+        help_text="The geographic location (Polygon) of the lot."
     )
 
     # --- Foreign Keys ---

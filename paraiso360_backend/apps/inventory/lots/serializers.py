@@ -1,5 +1,4 @@
 # paraiso360_backend/apps/inventory/lots/serializers.py
-from rest_framework_gis import serializers as gis_serializers
 from rest_framework import serializers
 from ..clients.serializers import ClientSerializer
 from ..lottypes.serializers import LotTypeSerializer
@@ -7,6 +6,7 @@ from .models import Lot
 from ..clients.models import Client
 from ..lottypes.models import LotType
 from django.contrib.gis.geos import Point
+from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
 
 class LotListSerializer(serializers.ListSerializer):
@@ -72,7 +72,7 @@ class LotListSerializer(serializers.ListSerializer):
         return updated_lots
 
 
-class LotSerializer(gis_serializers.GeoFeatureModelSerializer):
+class LotSerializer(GeoFeatureModelSerializer):
     """
     Serializer for the Lot model using GeoJSON for the location field.
 
